@@ -1,0 +1,27 @@
+# Compose stack for running fbd miner with persistent data.
+services:
+  fbd:
+    # Build image from local Dockerfile while also tagging it for reuse.
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: fbd-miner:latest
+    container_name: fbd
+    restart: unless-stopped
+    # Load runtime values (network, ports, miner identity, API key).
+    env_file:
+      - ../.env
+    # Keep blockchain/node data in a named volume.
+    volumes:
+      - fbd:${DATADIR}
+      - ../scripts/start-fbd.sh:/opt/start-fbd.sh:ro
+    # P2P is public; API is intentionally bound to localhost only.
+    ports:
+      - "${P2P_PORT}:32867"
+      - "${API_BIND_IP}:${API_PORT}:32869"
+    # Run startup logic from an external script to keep compose readable.
+    command: ["sh", "/opt/start-fbd.sh"]
+
+# Named volume definition.
+volumes:
+  fbd:
