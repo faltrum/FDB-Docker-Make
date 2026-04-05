@@ -104,6 +104,22 @@ Recommended host setups:
 
    This cleanup is repo-scoped: it removes this compose stack, its volumes, and local project images.
 
+5. Global Docker cleanup:
+
+   ```bash
+   make prunator
+   ```
+
+   Perform a global Docker cleanup (all unused containers, images, networks, volumes, cache).
+
+6. Full cleanup flow:
+
+   ```bash
+   make wipe-all
+   ```
+
+   Run the full cleanup flow: project teardown + repo cleanup + global prune.
+
 [Back to top](#fdb-docker-stack)
 
 ## Running the Project

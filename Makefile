@@ -79,15 +79,35 @@ config:
 pull:
 	$(COMPOSE) pull
 
+# Internal: remove stack resources (containers, networks, volumes).
+downv:
+	$(COMPOSE) down -v --remove-orphans
+
+# Internal: remove stack resources and local compose-built images.
+downvi:
+	$(COMPOSE) down -v --remove-orphans --rmi local || true
+
+# Backward-compatible aliases.
+down-stack-volumes: downv
+
+down-stack-volumes-images: downvi
+
 # Remove containers and project volumes, including orphaned services.
 clean:
-	$(COMPOSE) down -v --remove-orphans
+	$(MAKE) downv
+
+# Remove local image tagged for this repo (ignore when absent).
+rmimg:
+	docker image rm -f fbd-miner:latest 2>/dev/null || true
+
+# Backward-compatible alias.
+remove-project-image: rmimg
 
 # Perform a repo-scoped reset: remove stack resources and local project image.
 reset-docker:
 	@echo "Repo-only cleanup: removing this compose stack, its volumes, and local images built for this project."
-	$(COMPOSE) down -v --remove-orphans --rmi local || true
-	docker image rm -f fbd-miner:latest 2>/dev/null || true
+	$(MAKE) downvi
+	$(MAKE) rmimg
 
 # Perform a global Docker cleanup (all unused containers, images, networks, volumes, cache).
 prunator:
@@ -96,9 +116,8 @@ prunator:
 
 # Run the full cleanup flow: project teardown + repo cleanup + global prune.
 wipe-all:
-	@echo "Full cleanup flow: stopping stack, removing repo resources, then running global prunator."
-	$(COMPOSE) down -v --remove-orphans --rmi local || true
-	docker image rm -f fbd-miner:latest 2>/dev/null || true
+	@echo "Full cleanup flow: running repo cleanup (reset-docker) and then global prunator."
+	$(MAKE) reset-docker
 	$(MAKE) prunator
 
 
@@ -277,4 +296,4 @@ rpc:
 # SPECIAL TARGETS
 # ============================================================================
 
-.PHONY: up down restart build build-base logs ps config pull clean reset-docker prunator wipe-all help chaininfo blockcount bestblockhash blockhash blockheader block mempool network peers mining stop-node wallets wallet-info wallet-balance wallet-address wallet-change wallet-unspent wallet-addresses wallet-txs wallet-actions wallet-rescan rescan-progress import-wallet recover-wallet recover ctl rpc
+.PHONY: up down restart build build-base logs ps config pull downv downvi down-stack-volumes down-stack-volumes-images clean rmimg remove-project-image reset-docker prunator wipe-all help chaininfo blockcount bestblockhash blockhash blockheader block mempool network peers mining stop-node wallets wallet-info wallet-balance wallet-address wallet-change wallet-unspent wallet-addresses wallet-txs wallet-actions wallet-rescan rescan-progress import-wallet recover-wallet recover ctl rpc
