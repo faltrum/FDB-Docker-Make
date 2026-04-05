@@ -1,0 +1,39 @@
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+
+# Common secret/key material
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+id_rsa
+id_rsa.pub
+
+# Wallet/export/backup artifacts
+*.bak
+*.backup
+*.dump
+*wallet*.json
+
+# Local logs and runtime files
+*.log
+logs/
+tmp/
+*.pid
+
+# Docker/local data generated during development
+.docker/
+docker-data/
+data/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/

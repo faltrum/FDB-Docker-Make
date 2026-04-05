@@ -1,25 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Build stage: compile fbd binaries from source.
-FROM swift:6.2.3-jammy AS builder
-
-# Install toolchain and native dependencies required to build the Swift project.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    pkg-config \
-    libsqlite3-dev \
-    libssl-dev \
-    zlib1g-dev \
-    libncurses-dev \
-    libxml2-dev \
-    libcurl4-openssl-dev \
-    libedit-dev \
-    ca-certificates \
-    tzdata \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /src
+FROM fbd-builder-base:swift6.2.3-jammy AS builder
 
 # Clone the upstream project into the build workspace.
 RUN git clone https://github.com/fistbump-org/fbd.git .
@@ -50,6 +32,11 @@ WORKDIR /root
 # Copy compiled executables from the build stage into PATH.
 COPY --from=builder /src/.build/release/fbd /usr/local/bin/fbd
 COPY --from=builder /src/.build/release/fbdctl /usr/local/bin/fbdctl
+
+# Copy startup script into the runtime image and normalize line endings
+# to avoid shell parsing issues on Windows checkouts.
+COPY src/fdb/script/start-fbd.sh /opt/start-fbd.sh
+RUN sed -i 's/\r$//' /opt/start-fbd.sh && chmod 755 /opt/start-fbd.sh
 
 # Expose peer, API and RPC ports used by fbd.
 EXPOSE 32867 32869 32870

@@ -4,7 +4,7 @@ services:
     # Build image from local Dockerfile while also tagging it for reuse.
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: src/fdb/Dockerfile
     image: fbd-miner:latest
     container_name: fbd
     restart: unless-stopped
@@ -14,7 +14,6 @@ services:
     # Keep blockchain/node data in a named volume.
     volumes:
       - fbd:${DATADIR}
-      - ../scripts/start-fbd.sh:/opt/start-fbd.sh:ro
     # P2P is public; API is intentionally bound to localhost only.
     ports:
       - "${P2P_PORT}:32867"

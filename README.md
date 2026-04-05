@@ -14,7 +14,6 @@ The stack builds a custom image, starts the node, exposes the public P2P port, a
 - [Blockchain and Wallet Commands](#blockchain-and-wallet-commands)
 - [Environment Variables](#environment-variables)
 - [How It Works](#how-it-works)
-- [Platform Notes](#platform-notes)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 
@@ -24,12 +23,16 @@ The stack builds a custom image, starts the node, exposes the public P2P port, a
 .
 ├── .env.example
 ├── Makefile
-├── docker/
-│   ├── compose.yaml
-│   └── Dockerfile
-└── scripts/
-    ├── setup.sh
-    └── start-fbd.sh
+└── src/
+   ├── compose.yaml
+   ├── fdb/
+   │   ├── Dockerfile
+   │   └── script/
+   │       └── start-fbd.sh
+   ├── ubuswift/
+   │   └── Dockerfile
+   └── scripts/
+      └── setup.sh
 ```
 
 ## Requirements
@@ -49,23 +52,23 @@ Recommended host setups:
 
 ## Setup
 
-1. Copy the example environment file:
+1. Run the setup script first. It installs everything needed for your OS and prepares the environment:
+
+   ```bash
+   ./src/scripts/setup.sh
+   ```
+
+2. Copy the example environment file:
 
    ```bash
    cp .env.example .env
    ```
 
-2. Edit `.env` and fill in the required values:
+3. Edit `.env` and fill in the required values:
 
    - `MINER_ADDRESS`
    - `API_KEY`
    - `AGENT`
-
-3. If you are using WSL and need local prerequisites, run:
-
-   ```bash
-   ./scripts/setup.sh
-   ```
 
 4. Check available commands:
 
@@ -118,6 +121,7 @@ Useful lifecycle commands:
 - `make up` starts the stack in detached mode and rebuilds the image.
 - `make down` stops the stack.
 - `make restart` restarts the stack.
+- `make build-base` builds the reusable Swift/Ubuntu dependency image.
 - `make build` rebuilds the image without starting the stack.
 - `make logs` streams container logs.
 - `make ps` shows the running services.
@@ -194,36 +198,15 @@ If you only want a starting point, copy values from `.env.example` and then adju
 
 ## How It Works
 
-The main build and runtime files are located under `docker/`:
+The main build and runtime files are located under `src/`:
 
-- `docker/Dockerfile` builds the image from the upstream `fbd` source.
-- `docker/compose.yaml` starts the container and wires the persistent volume and ports.
+- `src/ubuswift/Dockerfile` builds a reusable base image with Swift and native build dependencies.
+- `src/fdb/Dockerfile` builds the image from the upstream `fbd` source.
+- `src/compose.yaml` starts the container and wires the persistent volume and ports.
 
-The node startup logic is kept in `scripts/start-fbd.sh` to keep the Compose file readable and portable.
+The node startup logic is defined in `src/fdb/script/start-fbd.sh` and copied into the image at build time to keep runtime behavior portable.
 
-[Back to top](#fdb-docker-stack)
-
-## Platform Notes
-
-### macOS
-
-Install Docker Desktop, GNU Make, and optionally Homebrew. After that, use the same commands shown above from your terminal.
-
-### Linux
-
-Install Docker Engine, Docker Compose v2, and GNU Make. The repository is designed to run the same `make` workflow on Linux without extra changes.
-
-### Windows
-
-The recommended approach is to use Docker Desktop plus a Unix-like shell such as WSL2 or Git Bash.
-
-If you are using WSL, you can also run the helper script:
-
-```bash
-./scripts/setup.sh
-```
-
-This script can help install `make` and Docker in the current environment, or target the Windows host when launched from WSL.
+The lifecycle targets `make up` and `make build` automatically run `make build-base` first, so dependency layers can be reused across app rebuilds.
 
 [Back to top](#fdb-docker-stack)
 
