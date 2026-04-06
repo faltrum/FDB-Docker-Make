@@ -4,7 +4,7 @@
 FROM fbd-builder-base:swift6.2.3-jammy AS builder
 
 # Clone the upstream project into the build workspace.
-RUN git clone https://github.com/fistbump-org/fbd.git .
+RUN git clone https://github.com/fistbump-org/fbd.git . && git checkout b6bec91
 
 # Generate the build hash file expected by the project build
 RUN HASH=$(git rev-parse --short=7 HEAD 2>/dev/null || echo "unknown") && \

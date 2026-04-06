@@ -145,6 +145,8 @@ help:
 	@echo "  mempool               - getmempoolinfo"
 	@echo "  network               - getnetworkinfo"
 	@echo "  peers                 - getpeerinfo"
+	@echo "  clearban              - clearbans"
+	@echo "  clear-banned-peers    - alias of clearban"
 	@echo "  mining                - getmininginfo"
 	@echo "  stop-node             - stop"
 	@echo "  ctl                   - fbdctl --api-key $$API_KEY <ARGS>"
@@ -201,6 +203,11 @@ network:
 
 peers:
 	$(call run-fbdctl,getpeerinfo)
+
+clearban:
+	$(call run-fbdctl,clearbans)
+
+clear-banned-peers: clearban
 
 mining:
 	$(call run-fbdctl,getmininginfo)
@@ -296,4 +303,4 @@ rpc:
 # SPECIAL TARGETS
 # ============================================================================
 
-.PHONY: up down restart build build-base logs ps config pull downv downvi down-stack-volumes down-stack-volumes-images clean rmimg remove-project-image reset-docker prunator wipe-all help chaininfo blockcount bestblockhash blockhash blockheader block mempool network peers mining stop-node wallets wallet-info wallet-balance wallet-address wallet-change wallet-unspent wallet-addresses wallet-txs wallet-actions wallet-rescan rescan-progress import-wallet recover-wallet recover ctl rpc
+.PHONY: up down restart build build-base logs ps config pull downv downvi down-stack-volumes down-stack-volumes-images clean rmimg remove-project-image reset-docker prunator wipe-all help chaininfo blockcount bestblockhash blockhash blockheader block mempool network peers clearban clear-banned-peers mining stop-node wallets wallet-info wallet-balance wallet-address wallet-change wallet-unspent wallet-addresses wallet-txs wallet-actions wallet-rescan rescan-progress import-wallet recover-wallet recover ctl rpc
