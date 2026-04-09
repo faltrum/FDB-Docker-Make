@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# #syntax=docker/dockerfile:1
 
 # Reusable builder base image for fbd compilation dependencies.
 FROM swift:6.2.3-jammy
